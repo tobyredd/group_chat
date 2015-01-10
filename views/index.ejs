@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/bootstrap/css/bootstrap.min.css' />
+    <script src="/javascripts/jquery-1.11.2.min.js"></script>
+    <script src='/socket.io/socket.io.js'></script>
+    <script>
+    	$(document).ready(function(){
+	    	var name = prompt("What is your name?");
+	    	console.log('prompt name: ', name);
+    		var room = 'chat_room';
+    		io = io.connect();
+	    	io.emit('got_a_new_user', {name: name, room: room });
+    		
+			io.on('new_user', function(data){
+				console.log(data.new_user_name);
+				var name = data.new_user_name;
+				$('.message_board').append('<p>' + name + ' joined the room!</p>');
+			})
+			$('#message_submit').on('click', function(data){
+				io.emit('message_received', { name: name, message: $('#message').val() })
+			})
+			io.on('message_broadcast', function(data){
+				console.log(data);
+				var name = data.user;
+				var message = data.message;
+				$('.message_board').append('<p>' + name + ': ' + message + '</p>');
+			})
+    		
+    	})
+    </script>
+  </head>
+  <body>
+    <div class='container'>
+    	<div class='row'>
+    		<h3>Conversation Board</h3>
+    		<div class='message_board'></div>
+ 			<p><input type='text' id='message' placeholder='enter your message here'></p>
+    		<p><input type='submit' id='message_submit' value='send message' class='btn btn-sm-default'></p>
+    		
+    	</div>
+    </div>
+  </body>
+</html>
+    		
